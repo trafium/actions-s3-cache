@@ -19,6 +19,9 @@ inputs:
   working-directory:
     required: false
     default: ./
+  restore-keys:
+    required: false
+    default: |
 runs:
   using: node12
   main: dist/index.js
