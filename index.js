@@ -20,7 +20,7 @@ async function run() {
 
     const s3 = new AWS.S3();
 
-    console.log('BOOM', restoreKeys);
+    console.log('BOOM', JSON.stringify(restoreKeys), 'BOOM');
 
     // s3.getObject({
     //     Bucket: s3Bucket,
