@@ -41,8 +41,10 @@ async function run () {
             }).promise();
 
             if (data.Contents.length) {
-              matchedRestoreKey = data.Contents.sort((a, b) => b.valueOf() - a.valueOf())[0];
+              matchedRestoreKey = data.Contents.sort((a, b) => b.valueOf() - a.valueOf())[0].Key;
               return true;
+            } else {
+              console.log(`No cache is found for restore key: ${key}`);
             }
           });
 
