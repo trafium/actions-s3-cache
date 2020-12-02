@@ -49,7 +49,7 @@ async function run () {
               Key: matchedRestoreKey
             });
 
-            await restoreCache(matchedRestoreKey, data)
+            await restoreCache(matchedRestoreKey, data, unzipOption)
           }
 
           await exec.exec(command); // install or build command e.g. npm ci, npm run dev
@@ -69,7 +69,7 @@ async function run () {
           );
 
         } else {
-          await restoreCache(fileName, data);
+          await restoreCache(fileName, data, unzipOption);
         }
     });
 
@@ -78,7 +78,7 @@ async function run () {
   }
 }
 
-async function restoreCache (fileName, data) {
+async function restoreCache (fileName, data, unzipOption) {
   console.log(`Found a cache for key: ${fileName}`);
   fs.writeFileSync(fileName, data.Body);
 
