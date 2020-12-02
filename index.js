@@ -10,7 +10,7 @@ async function run() {
     const cacheKey = core.getInput('cache-key', { required: true });
     const paths = core.getInput('paths', { required: true });
     const command = core.getInput('command', { required: true });
-    const restoreKeys = core.getInput('restore-keys', { required: false });
+    const restoreKeys = core.getInputAsArray('restore-keys', { required: false });
     const zipOption = core.getInput('zip-option', { required: false });
     const unzipOption = core.getInput('unzip-option', { required: false });
     const workingDirectory = core.getInput('working-directory', { required: false });
