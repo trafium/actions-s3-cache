@@ -32,24 +32,26 @@ async function run () {
         if (err) {
           console.log(`No cache is found for key: ${fileName}`);
 
-          const matchedRestoreKey = restoreKeys.find(async (key) => {
+          const matchedRestoreCache = restoreKeys.find(async (key) => {
             const data = await s3.listObjectsV2({
               Bucket: s3Bucket,
               Prefix: key
             }).promise();
 
             if (data.Contents.length) {
-              return data.Contents.sort((a, b) => b.valueOf() - a.valueOf()).Key;
+              return data.Contents.sort((a, b) => b.valueOf() - a.valueOf())[0];
             }
-          })
+          });
 
-          if (matchedRestoreKey) {
+          if (matchedRestoreCache) {
+            console.log(`Matched via restore key: ${ matchedRestoreCache.Key }`);
+
             const data = await s3.getObject({
               Bucket: s3Bucket,
-              Key: matchedRestoreKey
+              Key: matchedRestoreCache.Key
             });
 
-            await restoreCache(matchedRestoreKey, data, unzipOption)
+            await restoreCache(matchedRestoreCache.Key, data, unzipOption);
           }
 
           await exec.exec(command); // install or build command e.g. npm ci, npm run dev
