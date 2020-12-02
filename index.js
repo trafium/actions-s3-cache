@@ -35,7 +35,7 @@ async function run () {
           const matchedRestoreKey = restoreKeys.find(async (key) => {
             const data = await s3.listObjectsV2({
               Bucket: s3Bucket,
-              prefix: key
+              Prefix: key
             }).promise();
 
             if (data.Contents.length) {
