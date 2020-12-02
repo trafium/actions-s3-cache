@@ -45,6 +45,8 @@ async function run () {
 
           if (matchedRestoreCache) {
             console.log(`Matched via restore key: ${ matchedRestoreCache.Key }`);
+            console.log(matchedRestoreCache);
+            console.log(JSON.stringify(matchedRestoreCache));
 
             const data = await s3.getObject({
               Bucket: s3Bucket,
