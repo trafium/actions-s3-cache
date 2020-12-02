@@ -3,18 +3,23 @@ const exec = require('@actions/exec');
 const AWS = require('aws-sdk');
 const fs = require('graceful-fs');
 
-async function run() {
+async function run () {
 
   try {
     const s3Bucket = core.getInput('s3-bucket', { required: true });
     const cacheKey = core.getInput('cache-key', { required: true });
     const paths = core.getInput('paths', { required: true });
     const command = core.getInput('command', { required: true });
-    const restoreKeys = core.getInputAsArray('restore-keys', { required: false });
     const zipOption = core.getInput('zip-option', { required: false });
     const unzipOption = core.getInput('unzip-option', { required: false });
     const workingDirectory = core.getInput('working-directory', { required: false });
     const fileName = cacheKey + '.zip';
+
+    const restoreKeys = core
+      .getInput('restore-keys', { required: false })
+      .split('\n')
+      .map(s => s.trim())
+      .filter(x => x !== '');
 
     process.chdir(workingDirectory);
 
@@ -56,9 +61,8 @@ async function run() {
     //     }
     // });
 
-  }
-  catch (error) {
-    core.setFailed(error.message)
+  } catch (error) {
+    core.setFailed(error.message);
   }
 }
 
