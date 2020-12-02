@@ -25,45 +25,65 @@ async function run () {
 
     const s3 = new AWS.S3();
 
-    console.log('BOOM');
-    console.log(JSON.stringify(restoreKeys));
-    console.log('BOOM');
+    s3.getObject({
+        Bucket: s3Bucket,
+        Key: fileName
+      }, async (err, data) => {
+        if (err) {
+          console.log(`No cache is found for key: ${fileName}`);
 
-    // s3.getObject({
-    //     Bucket: s3Bucket,
-    //     Key:fileName
-    //   }, async (err, data) => {
-    //     if (err) {
-    //       console.log(`No cache is found for key: ${fileName}`);
-    //
-    //       await exec.exec(command); // install or build command e.g. npm ci, npm run dev
-    //       await exec.exec(`zip ${zipOption} ${fileName} ${paths}`);
-    //
-    //       s3.upload({
-    //           Body: fs.readFileSync(fileName),
-    //           Bucket: s3Bucket,
-    //           Key: fileName,
-    //         }, (err, data) => {
-    //           if (err) {
-    //             console.log(`Failed store to ${fileName}`);
-    //           } else {
-    //             console.log(`Stored cache to ${fileName}`);
-    //           }
-    //         }
-    //       );
-    //
-    //     } else {
-    //       console.log(`Found a cache for key: ${fileName}`);
-    //       fs.writeFileSync(fileName, data.Body);
-    //
-    //       await exec.exec(`unzip ${unzipOption} ${fileName}`);
-    //       await exec.exec(`rm -f ${fileName}`);
-    //     }
-    // });
+          const matchedRestoreKey = restoreKeys.find(async (key) => {
+            const data = await s3.listObjectsV2({
+              Bucket: s3Bucket,
+              prefix: key
+            }).promise();
+
+            if (data.Contents.length) {
+              return data.Contents.sort((a, b) => b.valueOf() - a.valueOf()).Key;
+            }
+          })
+
+          if (matchedRestoreKey) {
+            const data = await s3.getObject({
+              Bucket: s3Bucket,
+              Key: matchedRestoreKey
+            });
+
+            await restoreCache(matchedRestoreKey, data)
+          }
+
+          await exec.exec(command); // install or build command e.g. npm ci, npm run dev
+          await exec.exec(`zip ${zipOption} ${fileName} ${paths}`);
+
+          s3.upload({
+              Body: fs.readFileSync(fileName),
+              Bucket: s3Bucket,
+              Key: fileName,
+            }, (err, data) => {
+              if (err) {
+                console.log(`Failed store to ${fileName}`);
+              } else {
+                console.log(`Stored cache to ${fileName}`);
+              }
+            }
+          );
+
+        } else {
+          await restoreCache(fileName, data);
+        }
+    });
 
   } catch (error) {
     core.setFailed(error.message);
   }
+}
+
+async function restoreCache (fileName, data) {
+  console.log(`Found a cache for key: ${fileName}`);
+  fs.writeFileSync(fileName, data.Body);
+
+  await exec.exec(`unzip ${unzipOption} ${fileName}`);
+  await exec.exec(`rm -f ${fileName}`);
 }
 
 run();
